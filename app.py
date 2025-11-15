@@ -56,6 +56,11 @@ def load_history(session_id: str, limit: int = 50):
 
 @app.route("/")
 def home():
+    return render_template("landing.html")
+
+
+@app.route("/chat")
+def chat_page():
     return render_template("index.html")
 
 
