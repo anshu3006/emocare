@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMOCARE - Voice Emotional Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f3; display: flex; justify-content: center; padding-top: 40px; }
+        .chat-container { width: 420px; background: white; border-radius: 14px; padding: 20px; box-shadow: 0px 0px 12px rgba(0,0,0,0.15); }
+        h2 { text-align: center; margin-bottom: 8px; color: #333; }
+        #emotion-display { text-align: center; font-size: 40px; margin-bottom: 10px; }
+        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 10px; padding: 10px; background: #fafafa; }
+        .msg { margin: 8px 0; padding: 10px 14px; border-radius: 14px; max-width: 75%; line-height: 1.3; }
+        .user { background: #cde7ff; margin-left: auto; }
+        .bot { background: #eee; margin-right: auto; }
+        .input-area { margin-top: 12px; display: flex; }
+        input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #bbb; font-size: 15px; }
+        button { padding: 10px 15px; margin-left: 6px; border: none; background: #4a90e2; color: white; font-size: 15px; border-radius: 8px; cursor: pointer; }
+        #mic-btn { background: #ff4444; }
+    </style>
+    <script>
+        function emojiForEmotion(em) { const map = { happy: "😊", sad: "😢", angry: "😡", anxious: "😰", love: "💙", surprised: "😮", neutral: "🙂" }; return map[em] || "🙂"; }
+        function speak(text) { const speech = new SpeechSynthesisUtterance(text); speech.lang = "en-US"; speech.pitch = 1; speech.rate = 1; window.speechSynthesis.speak(speech); }
+        async function sendMessage() {
+            let text = document.getElementById("user-input").value; if (text.trim() === "") return;
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class="msg user">${text}</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById("user-input").value = "";
+            let response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: text, session_id: "default_user" }) });
+            let data = await response.json();
+            document.getElementById("emotion-display").innerHTML = emojiForEmotion(data.emotion);
+            chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`; chatBox.scrollTop = chatBox.scrollHeight;
+            speak(data.reply);
+        }
+        function startListening() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SpeechRecognition) { alert("Your browser does not support voice recognition. Use Chrome."); return; }
+            const recognition = new SpeechRecognition(); recognition.lang = "en-US"; recognition.interimResults = false; recognition.continuous = false; recognition.start();
+            recognition.onresult = function(event) { let spokenText = event.results[0][0].transcript; document.getElementById("user-input").value = spokenText; sendMessage(); };
+        }
+        window.addEventListener('DOMContentLoaded', function() { document.getElementById("user-input").addEventListener("keydown", function(event) { if (event.key === "Enter") { sendMessage(); } }); });
+    </script>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>🎤 EMOCARE Voice Assistant</h2>
+        <div id="emotion-display">🙂</div>
+        <div id="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Speak or type your thoughts...">
+            <button onclick="sendMessage()">Send</button>
+            <button id="mic-btn" onclick="startListening()">🎤</button>
+        </div>
+    </div>
+</body>
+</html>
