@@ -1,7 +1,7 @@
 [build]
   publish = "netlify-dist"
   functions = "netlify/functions"
-  command = ""
+  command = "echo SKIP"
 
 [[redirects]]
   from = "/"
