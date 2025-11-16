@@ -32,6 +32,22 @@
             text-align: center;
             font-size: 40px;
             margin-bottom: 10px;
+            perspective: 600px;
+        }
+
+        .emoji-3d {
+            display: inline-block;
+            font-size: 64px;
+            transform-style: preserve-3d;
+            transform: rotateX(15deg) translateZ(24px);
+            filter: drop-shadow(0 10px 14px rgba(0,0,0,0.25));
+            text-shadow: 0 2px 0 rgba(255,255,255,0.3);
+            animation: emojiBob 3.5s ease-in-out infinite;
+        }
+
+        @keyframes emojiBob {
+            0%, 100% { transform: rotateX(15deg) translateZ(24px) translateY(0); }
+            50% { transform: rotateX(15deg) translateZ(34px) translateY(-6px); }
         }
 
         #chat-box {
@@ -96,7 +112,7 @@
         <h2>🎤 EMOCARE Voice Assistant</h2>
 
         <!-- Current detected emotion -->
-        <div id="emotion-display">🙂</div>
+        <div id="emotion-display"><span class="emoji-3d">🙂</span></div>
 
         <!-- Chat display -->
         <div id="chat-box"></div>
@@ -163,7 +179,7 @@
 
             // Display emotion as emoji
             document.getElementById("emotion-display").innerHTML =
-                emojiForEmotion(data.emotion);
+                `<span class="emoji-3d">${emojiForEmotion(data.emotion)}</span>`;
 
             // Show bot reply
             chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
